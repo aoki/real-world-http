@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httputil"
+	"time"
 
 	"github.com/k0kubun/pp"
 )
@@ -45,10 +46,20 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func handleSlow(w http.ResponseWriter, r *http.Request) {
+	for i := 0; i < 5; i++ {
+		time.Sleep(1 * time.Second)
+		log.Print(i)
+	}
+
+	fmt.Fprintf(w, "<html><body>10</body></html>\n")
+}
+
 func main() {
 	var httpServer http.Server
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/digest", handlerDigest)
+	http.HandleFunc("/slow", handleSlow)
 	log.Println("start http listening :80")
 	httpServer.Addr = ":80"
 	log.Println(httpServer.ListenAndServe())
